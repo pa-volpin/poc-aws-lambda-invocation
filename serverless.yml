@@ -1,0 +1,35 @@
+service: ms-poc-async
+
+plugins:
+  - serverless-bundle
+  - serverless-pseudo-parameters
+provider:
+  name: aws
+  runtime: nodejs12.x
+  memorySize: 256
+  region: sa-east-1
+  stage: ${opt:stage, 'dev'}
+  environment:
+    REGION: ${self:provider.region}
+    LAMBDA_INVOKE: ${self:service}-${self:provider.stage}-printPlayer
+  iamRoleStatements:
+    - ${file(./iam/LambdaInvokeIAM.yml):LambdaInvokeIAM}
+functions:
+  loopPlayers1:
+    handler: src/handlers/loopPlayers_case1.handler
+    events:
+      - http: GET /case1
+  loopPlayers2:
+    handler: src/handlers/loopPlayers_case2.handler
+    events:
+      - http: GET /case2
+  loopPlayers3:
+    handler: src/handlers/loopPlayers_case3.handler
+    events:
+      - http: GET /case3
+  printPlayer:
+    handler: src/handlers/printPlayer.handler
+
+custom:
+  bundle:
+    linting: false
